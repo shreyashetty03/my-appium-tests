@@ -1,0 +1,25 @@
+{
+  "name": "my-appium-tests",
+  "version": "1.0.0",
+  "description": "Automated Appium test project",
+  "main": "test3.js",
+  "scripts": {
+    "test": "node test3.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "appium": "^2.18.0",
+    "webdriverio": "^9.12.7"
+  },
+  "keywords": []
+}
+
+
+
+
+
+
+
+
+
