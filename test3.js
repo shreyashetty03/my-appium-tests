@@ -8,7 +8,7 @@ const opts = {
     'appium:platformName': 'Android',
     'appium:deviceName': 'emulator-5554',
     'appium:automationName': 'UiAutomator2',
-    'appium:app': 'C:/Users/ssshe/AndroidStudioProjects/MyFirstApplication/app/build/outputs/apk/debug/demo.apk'
+    'appium:app': './demo.apk'
   },
   firstMatch: [{}]
 }
@@ -22,7 +22,7 @@ async function main() {
             platformName: 'Android',
             deviceName: 'emulator-5554',
             automationName: 'UiAutomator2',
-            app: 'C:/Users/ssshe/AndroidStudioProjects/MyFirstApplication/app/build/outputs/apk/debug/demo.apk',
+            app: './demo.apk',
         }
     });
 
