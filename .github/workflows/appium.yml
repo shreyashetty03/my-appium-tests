@@ -27,7 +27,6 @@ jobs:
 
       - name: Wait for Appium to start
         run: sleep 10
-        curl --fail http://localhost:4725/wd/hub/status
 
       - name: Run tests
         run: node test3.js
