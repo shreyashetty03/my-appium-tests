@@ -26,8 +26,7 @@ jobs:
            nohup appium --port 4725 > appium.log 2>&1 &
 
       - name: Wait for Appium to start
-        run: |
-        sleep 10
+        run: sleep 10
         curl --fail http://localhost:4725/wd/hub/status
 
       - name: Run tests
