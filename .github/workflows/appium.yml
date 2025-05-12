@@ -25,11 +25,18 @@ jobs:
           appium -v
           appium driver install uiautomator2
 
-      - name: Set up Android Emulator
+      - name: Set up and start Android emulator
         run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-31;google_apis;x86_64"
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel --force
-          $ANDROID_HOME/emulator/emulator -avd testEmulator -no-snapshot -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools" "emulator" "system-images;android-31;google_apis;x86_64"
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools
+          echo "no" | avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel --force
+          # Start emulator
+          $ANDROID_HOME/emulator/emulator -avd testEmulator -no-snapshot -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > /dev/null 2>&1 &
+
+      - name: List available AVDs
+        run: |
+          ls -l $HOME/.android/avd
+          avdmanager list avd
 
       - name: Wait for emulator to boot
         run: |
