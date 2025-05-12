@@ -19,7 +19,9 @@ jobs:
         run: npm install
 
       - name: Install Appium globally
-        run: npm install -g appium
+        run: npm install -g appium@v2.18.0
+             appium -v
+             appium &>/dev/null &
 
       - name: Install UiAutomator2 driver
         run: appium driver install uiautomator2
