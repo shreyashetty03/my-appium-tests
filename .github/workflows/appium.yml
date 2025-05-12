@@ -24,9 +24,9 @@ jobs:
           choco install android-sdk
 
           # Set environment variables
-          echo "ANDROID_HOME=C:\Users\runneradmin\AppData\Local\Android\Sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=C:\Users\runneradmin\AppData\Local\Android\Sdk" >> $GITHUB_ENV
-          echo "PATH=C:\Users\runneradmin\AppData\Local\Android\Sdk\cmdline-tools\latest\bin;C:\Users\runneradmin\AppData\Local\Android\Sdk\platform-tools;C:\Users\runneradmin\AppData\Local\Android\Sdk\emulator;$PATH" >> $GITHUB_ENV
+          echo "ANDROID_HOME=C:\Users\ssshe\AppData\Local\Android\Sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=C:\Users\ssshe\AppData\Local\Android\Sdk" >> $GITHUB_ENV
+          echo "PATH=C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin;C:\Users\ssshe\AppData\Local\Android\Sdk\platform-tools;C:\Users\ssshe\AppData\Local\Android\Sdk\emulator;$PATH" >> $GITHUB_ENV
 
       # Step 3: Install Appium
       - name: Install Appium
@@ -38,8 +38,8 @@ jobs:
       # Step 4: Install system images and create an AVD
       - name: Install system images and create AVD
         run: |
-          echo "y" | C:\Users\runneradmin\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager --install "system-images;android-31;google_apis;x86_64"
-          echo "no" | C:\Users\runneradmin\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
+          echo "y" | C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager --install "system-images;android-31;google_apis;x86_64"
+          echo "no" | C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
 
       # Step 5: Start the Emulator (with PowerShell)
       - name: Start Android Emulator
