@@ -1,30 +1,14 @@
-name: Appium Tests
+name: Appium Tests (Windows)
 
 on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Adjust this if you're using macOS runner
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Set up Android SDK
-        run: |
-          # Set up Android SDK environment variables
-          echo "ANDROID_HOME=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
-
-          # Install Android SDK command-line tools
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          curl -s https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip -o commandlinetools.zip
-          unzip commandlinetools.zip -d $ANDROID_HOME/cmdline-tools
-          rm commandlinetools.zip
-
-          # Update SDK manager and install necessary packages
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-31;google_apis;x86_64"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -37,36 +21,33 @@ jobs:
       - name: Install Appium and UiAutomator2 driver
         run: |
           npm install -g appium@v2.18.0
-          echo "$(npm bin -g)" >> $GITHUB_PATH
+          echo "$(npm bin -g)" | Out-File -Append $env:GITHUB_PATH
           appium -v
           appium driver install uiautomator2
 
-      - name: Create and start Android Emulator
+      - name: Install Android system image
         run: |
-          # Create AVD with the new name "myNewEmulator"
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n myNewEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
+          echo y | sdkmanager "system-images;android-31;google_apis;x86_64"
+          sdkmanager --licenses
 
-          # Start the emulator using the new AVD name "myNewEmulator"
-          $ANDROID_HOME/emulator/emulator -avd myNewEmulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save &
-
-      - name: Wait for emulator to boot
+      - name: Create AVD
         run: |
-          export PATH=$PATH:$ANDROID_HOME/platform-tools
-          echo "Waiting for emulator to finish booting..."
-          boot_completed=""
-          until [[ "$boot_completed" == "1" ]]; do
-            sleep 10
-            boot_completed=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-            echo "boot_completed = $boot_completed"
-          done
-          echo "✅ Emulator is fully booted."
+          echo no | "C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\avdmanager.bat" create avd -n myNewEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
 
-      - name: Run Appium server (in background)
+      - name: Start emulator
         run: |
-          nohup appium --port 4725 > appium.log 2>&1 &
+          start /B "" "C:\Users\ssshe\AppData\Local\Android\Sdk\emulator\emulator.exe" -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save
+          echo "Waiting for emulator to boot..."
+          for /l %%x in (1, 1, 30) do (
+            adb shell getprop sys.boot_completed | findstr "1"
+            if %errorlevel%==0 goto booted
+            timeout /t 10
+          )
+          :booted
+          echo Emulator booted.
 
-      - name: Wait for Appium to start
-        run: sleep 10
+      - name: Start Appium
+        run: start /B appium --port 4723
 
       - name: Run tests
         run: node test3.js
