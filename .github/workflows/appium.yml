@@ -24,11 +24,9 @@ jobs:
           echo "$(npm bin -g)" | Out-File -Append $env:GITHUB_PATH
           appium -v
           appium driver install uiautomator2
-
+ 
       - name: Install Android system image
-        run: |
-          echo y | "C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat" "system-images;android-31;google_apis;x86_64"
-          sdkmanager --licenses
+        run: cmd /c "echo y | C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat \"system-images;android-31;google_apis;x86_64\""          sdkmanager --licenses
 
       - name: Create AVD
         run: |
