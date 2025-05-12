@@ -1,4 +1,4 @@
-name: Appium Tests (Ubuntu)
+name: Appium Tests (macOS)
 
 on: [push, pull_request]
 
@@ -31,13 +31,23 @@ jobs:
           sudo apt-get install -y qemu-kvm
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-31;google_apis;arm64-v8a"
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-          echo "no" | avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;arm64-v8a" -d pixel
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          mkdir -p $ANDROID_AVD_HOME
+          echo "no" | avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;arm64-v8a" -d pixel --force
+          
+          # Debug AVD creation
+          echo "Listing AVDs..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+          echo "Checking AVD config files..."
+          ls -al $HOME/.android/avd
 
-      - name: Start emulator
+      - name: Start Android Emulator
         run: |
           export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          # Start the emulator in the background
           $ANDROID_HOME/emulator/emulator -avd testEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -accel off -no-snapshot-save &
-          
+
       - name: Wait for emulator to boot
         run: |
           export PATH=$PATH:$ANDROID_HOME/platform-tools
