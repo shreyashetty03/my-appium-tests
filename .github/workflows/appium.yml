@@ -30,8 +30,8 @@ jobs:
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-31;google_apis;arm64-v8a"
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
           echo "no" | avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;arm64-v8a" -d pixel
-          $ANDROID_HOME/emulator/emulator -avd testEmulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
-      
+          $ANDROID_HOME/emulator/emulator -avd testEmulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -accel off &
+            
       - name: Wait for emulator to boot
         run: |
           export PATH=$PATH:$ANDROID_HOME/platform-tools
