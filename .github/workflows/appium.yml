@@ -27,7 +27,7 @@ jobs:
 
       - name: Install Android system image
         run: |
-          echo y | sdkmanager "system-images;android-31;google_apis;x86_64"
+          echo y | "C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat" "system-images;android-31;google_apis;x86_64"
           sdkmanager --licenses
 
       - name: Create AVD
