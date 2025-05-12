@@ -1,10 +1,10 @@
-name: Appium Tests
+name: Appium Tests (macOS)
 
 on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
@@ -18,30 +18,25 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Appium globally
-        run: npm install -g appium@v2.18.0
-             appium -v
-             appium &>/dev/null &
+      - name: Install Appium and UiAutomator2 driver
+        run: |
+          npm install -g appium@v2.18.0
+          echo "$(npm bin -g)" >> $GITHUB_PATH
+          appium -v
+          appium driver install uiautomator2
 
-      - name: Install UiAutomator2 driver
-        run: appium driver install uiautomator2
-
-      - name: Start Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31
-          target: google_apis
-          arch: x86_64
-          profile: pixel_3a
-          emulator-options: "-no-window -gpu swiftshader_indirect -noaudio"
-          script: echo "Emulator started"
+      - name: Create and start Android Emulator
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-31;google_apis;x86_64"
+          echo "no" | avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
+          $ANDROID_HOME/emulator/emulator -avd testEmulator -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader_indirect &
 
       - name: Wait for emulator to boot
         run: |
           echo "Waiting for emulator to finish booting..."
           boot_completed=""
           until [[ "$boot_completed" == "1" ]]; do
-            sleep 5
+            sleep 10
             boot_completed=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
             echo "boot_completed = $boot_completed"
           done
@@ -49,7 +44,7 @@ jobs:
 
       - name: Run Appium server (in background)
         run: |
-           nohup appium --port 4725 > appium.log 2>&1 &
+          nohup appium --port 4725 > appium.log 2>&1 &
 
       - name: Wait for Appium to start
         run: sleep 10
