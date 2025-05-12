@@ -1,78 +1,72 @@
-name: Android Emulator Test
+name: Appium Tests (macOS)
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest  # Adjust this if you're using macOS runner
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Android SDK
       - name: Set up Android SDK
         run: |
-          # Install SDK dependencies
-          choco install android-sdk
+          # Set up Android SDK environment variables
+          echo "ANDROID_HOME=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
+          
+          # Install Android SDK and tools
+          mkdir -p $ANDROID_HOME
+          curl -s https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip -o commandlinetools.zip
+          unzip commandlinetools.zip -d $ANDROID_HOME
+          rm commandlinetools.zip
+          
+          # Install SDK components
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-31;google_apis;x86_64"
 
-          # Set environment variables
-          echo "ANDROID_HOME=C:\Users\ssshe\AppData\Local\Android\Sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=C:\Users\ssshe\AppData\Local\Android\Sdk" >> $GITHUB_ENV
-          echo "PATH=C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin;C:\Users\ssshe\AppData\Local\Android\Sdk\platform-tools;C:\Users\ssshe\AppData\Local\Android\Sdk\emulator;$PATH" >> $GITHUB_ENV
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-      # Step 3: Install Appium
-      - name: Install Appium
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Appium and UiAutomator2 driver
         run: |
           npm install -g appium@v2.18.0
+          echo "$(npm bin -g)" >> $GITHUB_PATH
           appium -v
           appium driver install uiautomator2
 
-      # Step 4: Install system images and create an AVD
-      - name: Install system images and create AVD
+      - name: Create and start Android Emulator
         run: |
-          echo "y" | C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager --install "system-images;android-31;google_apis;x86_64"
-          echo "no" | C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\avdmanager create avd -n testEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
+          # Create AVD with the new name "myNewEmulator"
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n myNewEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
 
-      # Step 5: Start the Emulator (with PowerShell)
-      - name: Start Android Emulator
-        shell: pwsh
-        run: |
-          Write-Host "Starting Emulator..."
-          & "$env:ANDROID_HOME\emulator\emulator" -avd "testEmulator" -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save &
+          # Start the emulator using the new AVD name "myNewEmulator"
+          $ANDROID_HOME/emulator/emulator -avd myNewEmulator -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save &
 
-      # Step 6: Wait for Emulator to Boot
-      - name: Wait for Emulator to Boot
-        shell: pwsh
+      - name: Wait for emulator to boot
         run: |
-          Write-Host "Waiting for emulator to finish booting..."
-          $boot_completed = ""
-          while ($boot_completed -ne "1") {
-            Start-Sleep -Seconds 10
-            $boot_completed = & adb -s emulator-5554 shell getprop sys.boot_completed 2>$null
-            Write-Host "boot_completed = $boot_completed"
-          }
-          Write-Host "✅ Emulator is fully booted."
+          export PATH=$PATH:$ANDROID_HOME/platform-tools
+          echo "Waiting for emulator to finish booting..."
+          boot_completed=""
+          until [[ "$boot_completed" == "1" ]]; do
+            sleep 10
+            boot_completed=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            echo "boot_completed = $boot_completed"
+          done
+          echo "✅ Emulator is fully booted."
 
-      # Step 7: Run Appium server in the background
-      - name: Run Appium server
-        shell: pwsh
+      - name: Run Appium server (in background)
         run: |
-          Write-Host "Running Appium server..."
           nohup appium --port 4725 > appium.log 2>&1 &
 
-      # Step 8: Wait for Appium to start
-      - name: Wait for Appium to Start
+      - name: Wait for Appium to start
         run: sleep 10
 
-      # Step 9: Run your test scripts (example: node test3.js)
-      - name: Run Tests
-        run: |
-          node test3.js
+      - name: Run tests
+        run: node test3.js
