@@ -26,7 +26,8 @@ jobs:
           appium driver install uiautomator2
  
       - name: Install Android system image
-        run: cmd /c "echo y | C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat \"system-images;android-31;google_apis;x86_64\""          sdkmanager --licenses
+        shell: cmd
+        run: echo y | "C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat" "system-images;android-31;google_apis;x86_64"
 
       - name: Create AVD
         run: |
