@@ -34,6 +34,17 @@ jobs:
           emulator-options: "-no-window -gpu swiftshader_indirect -noaudio"
           script: echo "Emulator started"
 
+      - name: Wait for emulator to boot
+        run: |
+          echo "Waiting for emulator to finish booting..."
+          boot_completed=""
+          until [[ "$boot_completed" == "1" ]]; do
+            sleep 5
+            boot_completed=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            echo "boot_completed = $boot_completed"
+          done
+          echo "✅ Emulator is fully booted."
+
       - name: Run Appium server (in background)
         run: |
            nohup appium --port 4725 > appium.log 2>&1 &
@@ -43,5 +54,3 @@ jobs:
 
       - name: Run tests
         run: node test3.js
-
-
