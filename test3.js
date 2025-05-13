@@ -8,7 +8,7 @@ const opts = {
       'appium:platformName': 'Android',  // Added vendor prefix "appium:"
       'appium:deviceName': 'emulator-5554',  // Added vendor prefix "appium:"
       'appium:automationName': 'UiAutomator2',  // Added vendor prefix "appium:"
-      'appium:app": './app/build/outputs/apk/debug/demo.apk',  // Added vendor prefix "appium:"
+      'appium:app': './app/build/outputs/apk/debug/demo.apk',  // Added vendor prefix "appium:"
     },
     firstMatch: [{}]
   }
