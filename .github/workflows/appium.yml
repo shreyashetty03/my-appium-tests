@@ -1,4 +1,4 @@
-ame: Appium Tests (Windows)
+name: Appium Tests (Windows)
 
 on:
   push:
