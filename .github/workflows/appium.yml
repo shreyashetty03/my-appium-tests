@@ -29,14 +29,18 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-30" "system-images;android-30;default;x86_64"
+          sdkmanager "platform-tools" "platforms;android-30" "system-images;android-30;default;x86_64" "emulator"
 
       - name: Create AVD
         run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           echo "no" | avdmanager create avd -n test -k "system-images;android-30;default;x86_64"
 
       - name: Start emulator
         run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           adb start-server
           emulator -avd test -no-snapshot -no-audio -no-window &
           adb wait-for-device
