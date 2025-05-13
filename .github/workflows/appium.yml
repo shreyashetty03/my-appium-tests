@@ -33,7 +33,21 @@ jobs:
 
       - name: Create AVD
         run: |
-          echo "no" | $HOME/android-sdk/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;default;x86_64"
+         export ANDROID_SDK_ROOT=$HOME/android-sdk
+         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
+         echo "no" | avdmanager create avd -n test -k "system-images;android-30;default;x86_64"
+
+      - name: Set ANDROID_SDK_ROOT
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
+
+      - name: Install Android system image
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/emulator:$PATH
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-30" "system-images;android-30;default;x86_64" "emulator"
 
       - name: Start emulator
         run: |
