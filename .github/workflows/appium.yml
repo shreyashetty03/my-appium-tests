@@ -1,68 +1,41 @@
-name: Appium Tests (Windows)
+name: Android Test
 
 on:
   push:
-  pull_request:
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   test:
-    runs-on: windows-latest
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          node-version: 18
+          java-version: '11'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+
+      - name: Create AVD
+        run: echo "no" | avdmanager create avd -n test -k "system-images;android-30;default;x86_64"
+
+      - name: Start emulator
+        run: |
+          adb start-server
+          emulator -avd test -no-snapshot -no-audio -no-window &
+          adb wait-for-device
+          adb shell input keyevent 82
 
       - name: Install dependencies
         run: npm install
-
-      - name: Install Appium and UiAutomator2 driver
-        run: |
-          npm install -g appium@v2.18.0
-          echo "$(npm bin -g)" | Out-File -Append $env:GITHUB_PATH
-          appium -v
-          appium driver install uiautomator2
-
-      - name: Install Android system image
-        shell: cmd
-        run: |
-          echo y | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat "system-images;android-31;google_apis;x86_64"
-
-      - name: Accept licenses
-        shell: cmd
-        run: |
-          echo y | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat --licenses
-
-      - name: Create AVD
-        shell: cmd
-        run: |
-          echo no | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\avdmanager.bat create avd -n myNewEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
-
-      - name: Start emulator
-        shell: cmd
-        run: |
-          start /B "" %ANDROID_SDK_ROOT%\emulator\emulator.exe -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save
-          echo Waiting for emulator to boot...
-          for /l %%x in (1, 1, 30) do (
-            %ANDROID_SDK_ROOT%\platform-tools\adb.exe shell getprop sys.boot_completed | findstr "1"
-            if %errorlevel%==0 goto booted
-            timeout /t 10
-          )
-          :booted
-          echo Emulator booted.
-
-      - name: Verify emulator is running
-        shell: cmd
-        run: |
-          %ANDROID_SDK_ROOT%\platform-tools\adb.exe devices
-
-      - name: Start Appium
-        run: start /B appium --port 4723
 
       - name: Run tests
         run: node test3.js
