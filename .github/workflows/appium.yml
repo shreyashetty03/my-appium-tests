@@ -26,27 +26,27 @@ jobs:
           mkdir -p $HOME/android-sdk/cmdline-tools
           unzip cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
           mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-30" "system-images;android-30;default;x86_64" "emulator"
+          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH" >> $GITHUB_ENV
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "system-images;android-30;default;x86_64" "emulator"
 
       - name: Create AVD
         run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
-          echo "no" | avdmanager create avd -n test -k "system-images;android-30;default;x86_64"
+          echo "no" | $HOME/android-sdk/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;default;x86_64"
 
       - name: Start emulator
         run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
-          adb start-server
-          emulator -avd test -no-snapshot -no-audio -gpu swiftshader_indirect -no-window &
-          adb wait-for-device
-          adb shell input keyevent 82
+          $HOME/android-sdk/emulator/emulator -avd test -no-snapshot -no-audio -gpu swiftshader_indirect -no-window &
+          $HOME/android-sdk/platform-tools/adb wait-for-device
+          $HOME/android-sdk/platform-tools/adb shell input keyevent 82
+          echo "Emulator booted"
 
-      - name: Install dependencies
+      - name: Install APK
+        run: |
+          $HOME/android-sdk/platform-tools/adb install demo.apk
+
+      - name: Install Node dependencies
         run: npm install
 
       - name: Run tests
