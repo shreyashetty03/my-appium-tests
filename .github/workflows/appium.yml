@@ -27,18 +27,26 @@ jobs:
  
       - name: Install Android system image
         shell: cmd
-        run: echo y | "C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat" "system-images;android-31;google_apis;x86_64"
-
-      - name: Create AVD
         run: |
-          echo no | "C:\Users\ssshe\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\avdmanager.bat" create avd -n myNewEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
+          echo y | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat "system-images;android-31;google_apis;x86_64"
+
+      - name: Accept licenses
+        shell: cmd
+        run: |
+          echo y | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat --licenses
+          
+      - name: Create AVD
+        shell: cmd
+        run: |
+          echo no | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\avdmanager.bat create avd -n myNewEmulator -k "system-images;android-31;google_apis;x86_64" -d pixel
 
       - name: Start emulator
+        shell: cmd
         run: |
-          start /B "" "C:\Users\ssshe\AppData\Local\Android\Sdk\emulator\emulator.exe" -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save
-          echo "Waiting for emulator to boot..."
+          start /B "" %ANDROID_SDK_ROOT%\emulator\emulator.exe -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save
+          echo Waiting for emulator to boot...
           for /l %%x in (1, 1, 30) do (
-            adb shell getprop sys.boot_completed | findstr "1"
+            %ANDROID_SDK_ROOT%\platform-tools\adb.exe shell getprop sys.boot_completed | findstr "1"
             if %errorlevel%==0 goto booted
             timeout /t 10
           )
