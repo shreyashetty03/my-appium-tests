@@ -1,4 +1,4 @@
-name: Appium Tests (Windows)
+ame: Appium Tests (Windows)
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
       - name: Start emulator
         shell: cmd
         run: |
-          start /B "" %ANDROID_SDK_ROOT%\emulator\emulator.exe -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save -accel off
+          start /B "" %ANDROID_SDK_ROOT%\emulator\emulator.exe -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save
           echo Waiting for emulator to boot...
           for /l %%x in (1, 1, 30) do (
             %ANDROID_SDK_ROOT%\platform-tools\adb.exe shell getprop sys.boot_completed | findstr "1"
@@ -55,6 +55,11 @@ jobs:
           )
           :booted
           echo Emulator booted.
+
+      - name: Verify emulator is running
+        shell: cmd
+        run: |
+          %ANDROID_SDK_ROOT%\platform-tools\adb.exe devices
 
       - name: Start Appium
         run: start /B appium --port 4723
