@@ -1,6 +1,9 @@
 name: Appium Tests (Windows)
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -8,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -24,7 +27,7 @@ jobs:
           echo "$(npm bin -g)" | Out-File -Append $env:GITHUB_PATH
           appium -v
           appium driver install uiautomator2
- 
+
       - name: Install Android system image
         shell: cmd
         run: |
@@ -34,7 +37,7 @@ jobs:
         shell: cmd
         run: |
           echo y | %ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat --licenses
-          
+
       - name: Create AVD
         shell: cmd
         run: |
@@ -43,7 +46,7 @@ jobs:
       - name: Start emulator
         shell: cmd
         run: |
-          start /B "" %ANDROID_SDK_ROOT%\emulator\emulator.exe -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save
+          start /B "" %ANDROID_SDK_ROOT%\emulator\emulator.exe -avd myNewEmulator -no-audio -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save -accel off
           echo Waiting for emulator to boot...
           for /l %%x in (1, 1, 30) do (
             %ANDROID_SDK_ROOT%\platform-tools\adb.exe shell getprop sys.boot_completed | findstr "1"
