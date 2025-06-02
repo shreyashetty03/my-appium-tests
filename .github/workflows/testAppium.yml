@@ -49,7 +49,7 @@ jobs:
 
       - name: Start Android Emulator
         run: |
-            nohup emulator -avd test-emulator -no-window -no-boot-anim -no-audio -accel off -gpu swiftshader_indirect &
+            nohup emulator -avd test-emulator -no-window -no-audio -no-boot-anim -accel off -gpu swiftshader_indirect &
             adb wait-for-device
             boot_completed=""
             until [[ "$boot_completed" == "1" ]]; do
