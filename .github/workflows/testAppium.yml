@@ -51,6 +51,12 @@ jobs:
         run: |
             nohup emulator -avd test-emulator -no-window -no-boot-anim -no-audio -accel off -gpu swiftshader_indirect &
             adb wait-for-device
+            boot_completed=""
+            until [[ "$boot_completed" == "1" ]]; do
+            sleep 5
+            boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            echo "Boot completed = $boot_completed"
+            done
             adb shell input keyevent 82
         timeout-minutes: 5
 
