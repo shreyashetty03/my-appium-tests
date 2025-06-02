@@ -30,6 +30,9 @@ jobs:
         run: |
             sdkmanager "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64"
             echo "no" | avdmanager create avd -n test -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
+      
+      - name: Add emulator to PATH
+        run: echo "${ANDROID_HOME}/emulator" >> $GITHUB_PATH
 
       - name: Start Android Emulator
         run: |
