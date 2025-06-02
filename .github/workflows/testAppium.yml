@@ -20,6 +20,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Set HOME (ensures .android/avd path works)
+        run: echo "HOME=/home/runner" >> $GITHUB_ENV
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -29,10 +32,15 @@ jobs:
       - name: Install emulator and create AVD
         run: |
             sdkmanager "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64"
-            echo "no" | avdmanager create avd -n test -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
+            echo "no" | avdmanager create avd -n test-emulator -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
       
       - name: Add emulator to PATH
         run: echo "${ANDROID_HOME}/emulator" >> $GITHUB_PATH
+
+      - name: List AVDs
+        run: |
+            echo "Listing AVDs..."
+            avdmanager list avd  
 
       - name: Start Android Emulator
         run: |
