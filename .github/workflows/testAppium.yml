@@ -26,10 +26,10 @@ jobs:
       - name: Accept Licenses
         run: yes | sdkmanager --licenses
 
-      - name: Install Android Emulator and System Image
+      - name: Install emulator and create AVD
         run: |
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0" "emulator" "system-images;android-33;google_apis;x86_64"
-          echo "y" | avdmanager create avd -n test-emulator -k "system-images;android-33;google_apis;x86_64" --force
+            sdkmanager "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64"
+            echo "no" | avdmanager create avd -n test -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
 
       - name: Start Android Emulator
         run: |
