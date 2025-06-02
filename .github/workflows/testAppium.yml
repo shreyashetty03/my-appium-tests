@@ -29,10 +29,15 @@ jobs:
       - name: Accept Licenses
         run: yes | sdkmanager --licenses
 
+      - name: Configure AVD paths
+        run: |
+                echo "ANDROID_SDK_HOME=$HOME" >> $GITHUB_ENV
+                echo "ANDROID_AVD_HOME=$HOME/.android/avd" >> $GITHUB_ENV
+
       - name: Install emulator and create AVD
         run: |
-            sdkmanager "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64"
-            echo "no" | avdmanager create avd -n test-emulator -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
+             sdkmanager "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64"
+             echo "no" | avdmanager create avd -n test-emulator -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
       
       - name: Add emulator to PATH
         run: echo "${ANDROID_HOME}/emulator" >> $GITHUB_PATH
@@ -44,9 +49,9 @@ jobs:
 
       - name: Start Android Emulator
         run: |
-          nohup emulator -avd test-emulator -no-window -no-audio -no-boot-anim &
-          adb wait-for-device
-          adb shell input keyevent 82 &  # Unlock the emulator screen
+            nohup emulator -avd test-emulator -no-window -no-boot-anim -no-audio -accel off -gpu swiftshader_indirect &
+            adb wait-for-device
+            adb shell input keyevent 82
         timeout-minutes: 5
 
       - name: Build the app
