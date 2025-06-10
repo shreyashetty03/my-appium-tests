@@ -1,88 +1,51 @@
-name: Run Android Script on Emulator
+name: Boot Android Emulator and Launch App
 
 on:
-  # push:
-  #   branches: 
-  #       - 'testBranch'
-  workflow_dispatch:
+    push:
+        branches: 
+            - 'testBranch'
+    workflow_dispatch:
 
 jobs:
-  run-on-emulator:
+  android-emulator:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set HOME (ensures .android/avd path works)
-        run: echo "HOME=/home/runner" >> $GITHUB_ENV
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Accept Licenses
-        run: yes | sdkmanager --licenses
-
-      - name: Configure AVD paths
+      - name: Install emulator and system image
         run: |
-                echo "ANDROID_SDK_HOME=$HOME" >> $GITHUB_ENV
-                echo "ANDROID_AVD_HOME=$HOME/.android/avd" >> $GITHUB_ENV
-                echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          sdkmanager "platform-tools" "emulator" "platforms;android-30" "system-images;android-30;google_apis;x86_64"
+          echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --device "pixel"
 
-      - name: Install emulator and create AVD
+      - name: Start emulator
         run: |
-             sdkmanager "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64"
-             echo "no" | avdmanager create avd -n test-emulator -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
-      
-      - name: Add emulator to PATH
-        run: echo "${ANDROID_HOME}/emulator" >> $GITHUB_PATH
+          nohup emulator -avd test -no-snapshot-save -no-window -no-audio &
+          adb wait-for-device
+          adb shell getprop sys.boot_completed | grep 1
+          sleep 30  # Allow extra time for full boot
 
-      - name: List AVDs
+      - name: Launch Chrome (or any package)
         run: |
-            echo "Listing AVDs..."
-            avdmanager list avd  
+          adb shell monkey -p com.android.chrome -c android.intent.category.LAUNCHER 1
 
-      - name: Start Android Emulator
+      - name: Take screenshot
         run: |
-            nohup emulator -avd test-emulator -no-window -no-audio -no-boot-anim -accel off -gpu swiftshader_indirect
-            echo "Waiting for emulator to connect..."
-            adb wait-for-device
-            echo "Waiting for full boot..."
-            boot_timeout=600
-            elapsed=0
-            while [[ "$elapsed" -lt "$boot_timeout" ]]; do
-            boot_status=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-            echo "Boot status: $boot_status at ${elapsed}s"
-            if [[ "$boot_status" == "1" ]]; then
-                echo "✅ Emulator fully booted"
-                break
-            fi
-            sleep 10
-            elapsed=$((elapsed + 10))
-            done
+          mkdir -p screenshots
+          adb exec-out screencap -p > screenshots/chrome.png
 
-            if [[ "$boot_status" != "1" ]]; then
-                echo "❌ Emulator failed to boot"
-                exit 1
-            fi
-            adb shell input keyevent 82
-        timeout-minutes: 10
-
-      - name: Build the app
-        run: ./gradlew assembleDebug
-
-      - name: Install APK on emulator
-        run: adb install -r $HOME/android-sdk/platform-tools/adb install demo.apk
-
-        
-      - name: Push JS script to emulator
-        run: adb push test3.js /sdcard/test3.js
-
-      - name: Trigger app to run JS
-        run: adb shell am start -n "com.your.package/.JsRunnerActivity"
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-screenshot
+          path: screenshots/chrome.png

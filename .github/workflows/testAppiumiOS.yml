@@ -2,8 +2,8 @@ name: Boot iOS Simulator and Launch App
 
 on:
     push:
-#     branches: 
-#         - 'testBranch'
+        branches: 
+            - 'testBranch'
     workflow_dispatch:
 
 jobs:
