@@ -1,5 +1,5 @@
 name: Boot iOS Simulator and Launch Calendar App
-
+ 
 on:
     push:
         branches: 
