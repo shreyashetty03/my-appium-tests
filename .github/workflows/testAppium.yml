@@ -1,9 +1,9 @@
 name: Run Android Script on Emulator
 
 on:
-  push:
-    branches: 
-        - 'testBranch'
+  # push:
+  #   branches: 
+  #       - 'testBranch'
   workflow_dispatch:
 
 jobs:
