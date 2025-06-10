@@ -1,9 +1,9 @@
-name: Boot iOS Simulator and Launch Compass App
+name: Boot iOS Simulator and Launch Calendar App
 
 on:
     push:
         branches: 
-            - 'Launch_Compass'
+            - 'Launch_Calendar'
     workflow_dispatch:
 
 jobs:
@@ -38,19 +38,19 @@ jobs:
       - name: Launch Compass on the simulator
         run: |
           echo "Launching Compass on simulator: $SIMULATOR_ID"
-          xcrun simctl launch "$SIMULATOR_ID" com.apple.compass
+          xcrun simctl launch "$SIMULATOR_ID" com.apple.mobilecal
 
       - name: Capture Screenshot
         run: |
             mkdir -p screenshots
-            xcrun simctl io "$SIMULATOR_ID" screenshot screenshots/compass.png
+            xcrun simctl io "$SIMULATOR_ID" screenshot screenshots/calendar.png
             ls screenshots    
 
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
             name: simulator-screenshot
-            path: screenshots/compass.png      
+            path: screenshots/calendr.png      
 
       - name: List running simulators
         run: xcrun simctl list devices booted
