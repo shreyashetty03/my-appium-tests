@@ -25,12 +25,16 @@ jobs:
 
       - name: Install emulator and system image
         run: |
-          sdkmanager "platform-tools" "emulator" "platforms;android-30" "system-images;android-30;google_apis;x86_64"
+          sdkmanager --install "platforms;android-30" "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
+
           echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --device "pixel"
+
+          # Add no-GPU flag for stability in headless environments
+          echo "hw.gpu.enabled=no" >> ~/.android/avd/test.avd/config.ini
 
       - name: Start emulator
         run: |
-          nohup emulator -avd test -no-window -no-audio -no-snapshot-save > /dev/null 2>&1 &
+          nohup emulator -avd test -no-window -no-audio -no-boot-anim -accel off > emulator.log 2>&1 &
           
           echo "Waiting for emulator to be ready..."
           boot_completed=""
@@ -47,7 +51,7 @@ jobs:
           fi
 
           echo "Emulator is ready"
-          
+
       - name: Launch Chrome (or any package)
         run: |
           adb shell monkey -p com.android.chrome -c android.intent.category.LAUNCHER 1
