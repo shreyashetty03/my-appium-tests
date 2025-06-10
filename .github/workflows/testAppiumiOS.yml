@@ -22,11 +22,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: List available simulators
+        run: xcrun simctl list devices
+
       - name: Boot iOS Simulator
         run: |
-          SIMULATOR_ID=$(xcrun simctl list devices | grep "iPhone 14" | grep "Shutdown" | awk -F '[()]' '{print $2}' | head -n 1)
-          xcrun simctl boot "$SIMULATOR_ID"
-          xcrun simctl bootstatus "$SIMULATOR_ID" -b
+            xcrun simctl list devices
+            SIMULATOR_ID=$(xcrun simctl list devices | \
+            grep -m 1 "iPhone 14" | \
+            grep -oE '[A-F0-9\-]{36}')
+            echo "Booting simulator with UDID: $SIMULATOR_ID"
+            xcrun simctl boot "$SIMULATOR_ID"
+            xcrun simctl bootstatus "$SIMULATOR_ID" -b
 
       - name: Run JS Script
         run: |
