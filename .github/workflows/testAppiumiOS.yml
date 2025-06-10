@@ -1,9 +1,9 @@
-name: Boot iOS Simulator and Launch App
+name: Boot iOS Simulator and Launch Compass App
 
 on:
     push:
         branches: 
-            - 'testBranch'
+            - 'Launch_Compass'
     workflow_dispatch:
 
 jobs:
@@ -35,22 +35,22 @@ jobs:
           # Wait until boot completes
           xcrun simctl bootstatus "$SIM_ID" -b
 
-      - name: Launch Safari on the simulator
+      - name: Launch Compass on the simulator
         run: |
-          echo "Launching Safari on simulator: $SIMULATOR_ID"
-          xcrun simctl launch "$SIMULATOR_ID" com.apple.mobilesafari
+          echo "Launching Compass on simulator: $SIMULATOR_ID"
+          xcrun simctl launch "$SIMULATOR_ID" com.apple.compass
 
       - name: Capture Screenshot
         run: |
             mkdir -p screenshots
-            xcrun simctl io "$SIMULATOR_ID" screenshot screenshots/safari.png
+            xcrun simctl io "$SIMULATOR_ID" screenshot screenshots/compass.png
             ls screenshots    
 
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
             name: simulator-screenshot
-            path: screenshots/safari.png      
+            path: screenshots/compass.png      
 
       - name: List running simulators
         run: xcrun simctl list devices booted
