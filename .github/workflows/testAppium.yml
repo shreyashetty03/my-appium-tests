@@ -23,27 +23,25 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install emulator and system image
+      - name: Install system image and create AVD
+        env:
+          ANDROID_AVD_HOME: ${{ github.workspace }}/avd-home
         run: |
           sdkmanager --install "platform-tools" "emulator" "platforms;android-30" "system-images;android-30;google_apis;x86_64"
           yes | sdkmanager --licenses
 
-          echo "Creating AVD..."
+          mkdir -p "$ANDROID_AVD_HOME"
+
           avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --device "pixel"
 
-          echo "Checking AVD directory..."
-          ls -la ~/.android/avd
+          echo "✅ AVD directory created:"
+          ls -la "$ANDROID_AVD_HOME"
 
-          if [ ! -f ~/.android/avd/test.avd/config.ini ]; then
-            echo "❌ AVD creation failed"
-            exit 1
-          fi
-
-          echo "✅ AVD created successfully"
-
-      - name: Patch AVD config to disable GPU
+      - name: Patch config to disable GPU
+        env:
+          ANDROID_AVD_HOME: ${{ github.workspace }}/avd-home
         run: |
-          echo "hw.gpu.enabled=no" >> ~/.android/avd/test.avd/config.ini    
+          echo "hw.gpu.enabled=no" >> "$ANDROID_AVD_HOME/test.avd/config.ini" 
 
       - name: Start emulator
         run: |
