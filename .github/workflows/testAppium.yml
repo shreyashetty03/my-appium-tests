@@ -25,12 +25,25 @@ jobs:
 
       - name: Install emulator and system image
         run: |
-          sdkmanager --install "platforms;android-30" "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
+          sdkmanager --install "platform-tools" "emulator" "platforms;android-30" "system-images;android-30;google_apis;x86_64"
+          yes | sdkmanager --licenses
 
-          echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --device "pixel"
+          echo "Creating AVD..."
+          avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --device "pixel"
 
-          # Add no-GPU flag for stability in headless environments
-          echo "hw.gpu.enabled=no" >> ~/.android/avd/test.avd/config.ini
+          echo "Checking AVD directory..."
+          ls -la ~/.android/avd
+
+          if [ ! -f ~/.android/avd/test.avd/config.ini ]; then
+            echo "❌ AVD creation failed"
+            exit 1
+          fi
+
+          echo "✅ AVD created successfully"
+
+      - name: Patch AVD config to disable GPU
+        run: |
+          echo "hw.gpu.enabled=no" >> ~/.android/avd/test.avd/config.ini    
 
       - name: Start emulator
         run: |
