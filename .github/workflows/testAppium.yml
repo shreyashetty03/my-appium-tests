@@ -30,11 +30,24 @@ jobs:
 
       - name: Start emulator
         run: |
-          nohup emulator -avd test -no-snapshot-save -no-window -no-audio &
-          adb wait-for-device
-          adb shell getprop sys.boot_completed | grep 1
-          sleep 30  # Allow extra time for full boot
+          nohup emulator -avd test -no-window -no-audio -no-snapshot-save > /dev/null 2>&1 &
+          
+          echo "Waiting for emulator to be ready..."
+          boot_completed=""
+          retry=0
+          until [[ "$boot_completed" == "1" || "$retry" -gt 30 ]]; do
+            sleep 10
+            boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            echo "Attempt $((retry++)): boot_completed = $boot_completed"
+          done
 
+          if [[ "$boot_completed" != "1" ]]; then
+            echo "Emulator failed to boot"
+            exit 1
+          fi
+
+          echo "Emulator is ready"
+          
       - name: Launch Chrome (or any package)
         run: |
           adb shell monkey -p com.android.chrome -c android.intent.category.LAUNCHER 1
