@@ -45,7 +45,7 @@ jobs:
           adb exec-out screencap -p > screenshots/chrome.png
 
       - name: Upload screenshot
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-screenshot
           path: screenshots/chrome.png
