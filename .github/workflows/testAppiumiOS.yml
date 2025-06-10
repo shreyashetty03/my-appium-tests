@@ -40,6 +40,18 @@ jobs:
           echo "Launching Safari on simulator: $SIMULATOR_ID"
           xcrun simctl launch "$SIMULATOR_ID" com.apple.mobilesafari
 
+      - name: Capture Screenshot
+        run: |
+            mkdir -p screenshots
+            xcrun simctl io "$SIMULATOR_ID" screenshot screenshots/safari.png
+            ls screenshots    
+
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v3
+        with:
+            name: simulator-screenshot
+            path: screenshots/safari.png      
+
       - name: List running simulators
         run: xcrun simctl list devices booted
 
