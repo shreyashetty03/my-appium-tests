@@ -29,7 +29,7 @@ jobs:
         run: |
             xcrun simctl list devices
             SIMULATOR_ID=$(xcrun simctl list devices | \
-            grep -m 1 "iPhone 14" | \
+            grep -m 1 "iPhone 15 Pro" | \
             grep -oE '[A-F0-9\-]{36}')
             echo "Booting simulator with UDID: $SIMULATOR_ID"
             xcrun simctl boot "$SIMULATOR_ID"
