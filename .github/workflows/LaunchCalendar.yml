@@ -3,7 +3,7 @@ name: Boot iOS Simulator and Launch Calendar App
 on:
     push:
         branches: 
-            - 'LaunchCompass'
+            - 'Launch_Compass'
     workflow_dispatch:
 
 jobs:
