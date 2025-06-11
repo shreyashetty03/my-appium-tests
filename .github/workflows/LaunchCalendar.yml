@@ -38,7 +38,7 @@ jobs:
       - name: Launch Calendar on the simulator
         run: |
           echo "Launching Calendar on simulator: $SIMULATOR_ID"
-          xcrun simctl launch "$SIMULATOR_ID" com.apple.mobilecal
+          xcrun simctl launch "$SIMULATOR_ID" 	com.apple.weather
 
       - name: Capture Screenshot
         run: |
