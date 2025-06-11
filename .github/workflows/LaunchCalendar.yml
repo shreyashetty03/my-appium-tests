@@ -1,0 +1,56 @@
+name: Boot iOS Simulator and Launch Calendar App
+ 
+on:
+    push:
+        branches: 
+            - 'Launch_Compass'
+    workflow_dispatch:
+
+jobs:
+  ios-simulator-launch:
+    runs-on: macos-latest
+
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+    steps:
+      - name: Show available runtimes
+        run: xcrun simctl list runtimes
+
+      - name: Create and boot iOS simulator
+        run: |
+          # Get the latest available iOS runtime
+          RUNTIME=$(xcrun simctl list runtimes | grep -m 1 "iOS 17" | grep -o 'com.apple.CoreSimulator.SimRuntime.iOS[^ ]*')
+
+          # Define simulator type (e.g., iPhone 14)
+          DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.iPhone-15"
+
+          # Create simulator and capture its ID
+          SIM_ID=$(xcrun simctl create "CI-iPhone14" "$DEVICE_TYPE" "$RUNTIME")
+          echo "SIMULATOR_ID=$SIM_ID" >> $GITHUB_ENV
+
+          # Boot the simulator
+          xcrun simctl boot "$SIM_ID"
+
+          # Wait until boot completes
+          xcrun simctl bootstatus "$SIM_ID" -b
+
+      - name: Launch Calendar on the simulator
+        run: |
+          echo "Launching Calendar on simulator: $SIMULATOR_ID"
+          xcrun simctl launch "$SIMULATOR_ID" com.apple.Maps
+
+      - name: Capture Screenshot
+        run: |
+            mkdir -p screenshots
+            xcrun simctl io "$SIMULATOR_ID" screenshot screenshots/calendar.png
+            ls screenshots    
+
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v4
+        with:
+            name: simulator-screenshot
+            path: screenshots/calendar.png      
+
+      - name: List running simulators
+        run: xcrun simctl list devices booted
