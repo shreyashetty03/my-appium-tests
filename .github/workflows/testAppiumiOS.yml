@@ -1,4 +1,4 @@
-name: Boot iOS Simulator and Launch Calendar App
+name: Boot iOS Simulator and Launch the Calendar App
  
 on:
     push:
