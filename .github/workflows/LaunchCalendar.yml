@@ -35,9 +35,9 @@ jobs:
           # Wait until boot completes
           xcrun simctl bootstatus "$SIM_ID" -b
 
-      - name: Launch Compass on the simulator
+      - name: Launch Calendar on the simulator
         run: |
-          echo "Launching Compass on simulator: $SIMULATOR_ID"
+          echo "Launching Calendar on simulator: $SIMULATOR_ID"
           xcrun simctl launch "$SIMULATOR_ID" com.apple.mobilecal
 
       - name: Capture Screenshot
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: simulator-screenshot
-            path: screenshots/calendr.png      
+            path: screenshots/calendar.png      
 
       - name: List running simulators
         run: xcrun simctl list devices booted
